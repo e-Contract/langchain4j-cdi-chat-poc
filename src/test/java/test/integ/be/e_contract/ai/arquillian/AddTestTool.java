@@ -32,7 +32,6 @@ public class AddTestTool implements Serializable {
         this.called = true;
         int result = a + b;
         TestEntity entity = new TestEntity("result: " + result);
-        LOGGER.info("has entity manager: {}", this.entityManager != null);
         this.entityManager.persist(entity);
         // check whether we can get a CDI instance
         CDI cdi = CDI.current();

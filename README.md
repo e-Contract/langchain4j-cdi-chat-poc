@@ -8,6 +8,7 @@ What do we want to achieve?
 ## Integration Tests
 
 Running the integration tests requires a local running WildFly.
+We tested on WildFly version 38.0.1.Final.
 
 Run the integration tests via:
 ```

@@ -52,10 +52,7 @@ public class ChatScopeContext implements AlterableContext, Serializable {
         Class beanClass = bean.getBeanClass();
         LOGGER.info("creating bean instance of type: {} for chat {}", beanClass.getName(), identifier);
         beanInstance = (T) bean.create(creationalContext);
-        ChatScopeInstance chatScopeInstance = new ChatScopeInstance();
-        chatScopeInstance.bean = bean;
-        chatScopeInstance.creationalContext = creationalContext;
-        chatScopeInstance.instance = beanInstance;
+        ChatScopeInstance chatScopeInstance = new ChatScopeInstance(bean, beanInstance, creationalContext);
         Map<Class, ChatScopeInstance> classInstances = INSTANCES.get(identifier);
         if (null == classInstances) {
             classInstances = new HashMap<>();
@@ -172,10 +169,7 @@ public class ChatScopeContext implements AlterableContext, Serializable {
 
     }
 
-    private static class ChatScopeInstance<T> {
+    public static record ChatScopeInstance<T>(Bean<T> bean, T instance, CreationalContext<T> creationalContext) {
 
-        private Bean<T> bean;
-        private T instance;
-        private CreationalContext<T> creationalContext;
     }
 }

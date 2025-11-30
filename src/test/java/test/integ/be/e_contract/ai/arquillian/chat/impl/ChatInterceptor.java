@@ -55,9 +55,6 @@ public class ChatInterceptor {
                     invocationContext.getMethod().getName());
         }
         InvocationContextCallable callable = ChatScopeContext.getInvocationContextCallable();
-        if (null == callable) {
-            callable = new InvocationContextCallableImpl();
-        }
         String identifier = ChatScopeContext.getChatIdentifier();
         callable.setInvocationContext(invocationContext, identifier);
         if (null != invocationContext.getMethod()) {
@@ -74,7 +71,7 @@ public class ChatInterceptor {
         if (onManagedThread) {
             return callable.call();
         }
-        // only schedule when not already on a managed thread
+        // only schedule when not on a managed thread
         return this.managedExecutorService.submit(callable).get();
     }
 }
