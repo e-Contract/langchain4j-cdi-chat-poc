@@ -2,7 +2,6 @@ package test.integ.be.e_contract.ai.arquillian;
 
 import test.integ.be.e_contract.ai.arquillian.chat.ChatScoped;
 import dev.langchain4j.agent.tool.Tool;
-import java.io.Serializable;
 import jakarta.enterprise.event.Event;
 import jakarta.enterprise.inject.spi.CDI;
 import jakarta.inject.Inject;
@@ -13,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ChatScoped
-public class AddTestTool implements Serializable {
+public class AddTestTool {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AddTestTool.class);
 

@@ -165,11 +165,11 @@ public class ChatScopeContext implements AlterableContext, Serializable {
         LOGGER.debug("destroy");
     }
 
-    public static record ChatInfo(String identifier, boolean onManagedThread) {
+    private static record ChatInfo(String identifier, boolean onManagedThread) {
 
     }
 
-    public static record ChatScopeInstance<T>(Bean<T> bean, T instance, CreationalContext<T> creationalContext) {
+    private static record ChatScopeInstance<T>(Bean<T> bean, T instance, CreationalContext<T> creationalContext) {
 
     }
 }
