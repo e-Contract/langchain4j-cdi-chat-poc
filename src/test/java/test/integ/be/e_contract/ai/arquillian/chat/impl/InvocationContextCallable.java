@@ -8,5 +8,5 @@ public interface InvocationContextCallable extends Callable<Object> {
 
     void setUserTransaction(UserTransaction userTransaction);
 
-    void setInvocationContext(InvocationContext invocationContext);
+    void setInvocationContext(InvocationContext invocationContext, String identifier);
 }

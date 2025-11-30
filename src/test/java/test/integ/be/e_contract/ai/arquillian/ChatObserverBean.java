@@ -6,6 +6,7 @@ import test.integ.be.e_contract.ai.arquillian.chat.ChatScoped;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import jakarta.enterprise.event.Observes;
+import jakarta.inject.Inject;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,12 +16,12 @@ public class ChatObserverBean {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ChatObserverBean.class);
 
-    private StringBuilder message;
+    @Inject
+    private TransitiveBean transitiveBean;
 
     @PostConstruct
     public void postConstruct() {
         LOGGER.info("post construct");
-        this.message = new StringBuilder();
     }
 
     @PreDestroy
@@ -30,12 +31,12 @@ public class ChatObserverBean {
 
     public void observePartialResponseEvent(@Observes PartialResponseEvent event) {
         LOGGER.info("partial response: {}", event.getPartialResponse());
-        this.message.append(event.getPartialResponse());
+        this.transitiveBean.append(event.getPartialResponse());
     }
 
     public void observeCompleteResponseEvent(@Observes CompleteResponseEvent event) {
         LOGGER.info("complete response: {}", event.getChatResponse().aiMessage().text());
-        LOGGER.info("complete concat message: {}", this.message.toString());
-        assertEquals(event.getChatResponse().aiMessage().text(), this.message.toString());
+        LOGGER.info("complete concat message: {}", this.transitiveBean.getResult());
+        assertEquals(event.getChatResponse().aiMessage().text(), this.transitiveBean.getResult());
     }
 }

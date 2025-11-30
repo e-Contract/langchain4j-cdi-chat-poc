@@ -32,7 +32,8 @@ public class ChatInterceptor {
         if (null == callable) {
             callable = new InvocationContextCallableImpl();
         }
-        callable.setInvocationContext(invocationContext);
+        String identifier = ChatScopeContext.getChatIdentifier();
+        callable.setInvocationContext(invocationContext, identifier);
         Transactional txAnnotation = invocationContext.getMethod().getAnnotation(Transactional.class);
         if (null != txAnnotation) {
             callable.setUserTransaction(this.userTransaction);

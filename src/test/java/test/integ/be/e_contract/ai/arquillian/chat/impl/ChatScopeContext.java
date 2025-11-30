@@ -131,6 +131,11 @@ public class ChatScopeContext implements AlterableContext, Serializable {
         return callable;
     }
 
+    public static String getChatIdentifier() {
+        String identifier = CHAT_THREAD_LOCAL.get();
+        return identifier;
+    }
+
     @Override
     public void destroy(Contextual<?> contextual) {
         Bean bean = (Bean) contextual;
