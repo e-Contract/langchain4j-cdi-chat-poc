@@ -36,6 +36,8 @@ public class ChatInterceptor {
         Transactional txAnnotation = invocationContext.getMethod().getAnnotation(Transactional.class);
         if (null != txAnnotation) {
             callable.setUserTransaction(this.userTransaction);
+        } else {
+            callable.setUserTransaction(null);
         }
         return this.managedExecutorService.submit(callable).get();
     }
