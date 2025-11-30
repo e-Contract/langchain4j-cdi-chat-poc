@@ -26,7 +26,7 @@ public class InvocationContextCallableImpl implements InvocationContextCallable 
 
     @Override
     public Object call() throws Exception {
-        CDI.current().getBeanManager().getEvent().fire(new StartChatScopeEvent(identifier));
+        CDI.current().getBeanManager().getEvent().fire(new StartChatScopeEvent(this.identifier, true));
         if (null == this.userTransaction) {
             return this.invocationContext.proceed();
         }

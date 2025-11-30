@@ -8,13 +8,16 @@ public class StartChatScopeEvent {
 
     private final ContextService contextService;
 
-    public StartChatScopeEvent(String identifier, ContextService contextService) {
+    private final boolean onManagedThread;
+
+    public StartChatScopeEvent(String identifier, ContextService contextService, boolean onManagedThread) {
         this.identifier = identifier;
         this.contextService = contextService;
+        this.onManagedThread = onManagedThread;
     }
 
-    public StartChatScopeEvent(String identifier) {
-        this(identifier, null);
+    public StartChatScopeEvent(String identifier, boolean onManagedThread) {
+        this(identifier, null, onManagedThread);
     }
 
     public String getIdentifier() {
@@ -23,5 +26,9 @@ public class StartChatScopeEvent {
 
     public ContextService getContextService() {
         return this.contextService;
+    }
+
+    public boolean isOnManagedThread() {
+        return this.onManagedThread;
     }
 }

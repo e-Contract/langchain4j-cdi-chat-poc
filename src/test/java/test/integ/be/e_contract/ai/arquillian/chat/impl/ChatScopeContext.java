@@ -21,7 +21,7 @@ public class ChatScopeContext implements AlterableContext, Serializable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ChatScopeContext.class);
 
-    private static final ThreadLocal<String> CHAT_THREAD_LOCAL = new ThreadLocal<>();
+    private static final ThreadLocal<ChatInfo> CHAT_THREAD_LOCAL = new ThreadLocal<>();
 
     private static final Map<String, Map<Class, ChatScopeInstance>> INSTANCES = new HashMap<>();
 
@@ -38,7 +38,12 @@ public class ChatScopeContext implements AlterableContext, Serializable {
         if (null != beanInstance) {
             return beanInstance;
         }
-        String identifier = CHAT_THREAD_LOCAL.get();
+        ChatInfo chatInfo = CHAT_THREAD_LOCAL.get();
+        if (null == chatInfo) {
+            LOGGER.error("no chat scope active");
+            return null;
+        }
+        String identifier = chatInfo.identifier;
         if (null == identifier) {
             LOGGER.error("no chat scope active");
             return null;
@@ -62,7 +67,11 @@ public class ChatScopeContext implements AlterableContext, Serializable {
 
     @Override
     public <T> T get(Contextual<T> contextual) {
-        String identifier = CHAT_THREAD_LOCAL.get();
+        ChatInfo chatInfo = CHAT_THREAD_LOCAL.get();
+        if (null == chatInfo) {
+            return null;
+        }
+        String identifier = chatInfo.identifier;
         if (null == identifier) {
             return null;
         }
@@ -81,14 +90,15 @@ public class ChatScopeContext implements AlterableContext, Serializable {
 
     @Override
     public boolean isActive() {
-        String identifier = CHAT_THREAD_LOCAL.get();
-        return null != identifier;
+        ChatInfo chatInfo = CHAT_THREAD_LOCAL.get();
+        return null != chatInfo;
     }
 
     public void handleStartChatEvent(@Observes StartChatScopeEvent event) {
         String identifier = event.getIdentifier();
-        LOGGER.info("start chat scope: {}", identifier);
-        CHAT_THREAD_LOCAL.set(identifier);
+        LOGGER.info("start chat scope: {} (on managed thread: {})", identifier, event.isOnManagedThread());
+        ChatInfo chatInfo = new ChatInfo(identifier, event.isOnManagedThread());
+        CHAT_THREAD_LOCAL.set(chatInfo);
         Map<Class, ChatScopeInstance> classInstances = INSTANCES.get(identifier);
         if (null == classInstances) {
             classInstances = new HashMap<>();
@@ -120,7 +130,11 @@ public class ChatScopeContext implements AlterableContext, Serializable {
     }
 
     public static InvocationContextCallable getInvocationContextCallable() {
-        String identifier = CHAT_THREAD_LOCAL.get();
+        ChatInfo chatInfo = CHAT_THREAD_LOCAL.get();
+        if (null == chatInfo) {
+            return new InvocationContextCallableImpl();
+        }
+        String identifier = chatInfo.identifier;
         if (null == identifier) {
             return new InvocationContextCallableImpl();
         }
@@ -132,14 +146,30 @@ public class ChatScopeContext implements AlterableContext, Serializable {
     }
 
     public static String getChatIdentifier() {
-        String identifier = CHAT_THREAD_LOCAL.get();
+        ChatInfo chatInfo = CHAT_THREAD_LOCAL.get();
+        if (null == chatInfo) {
+            return null;
+        }
+        String identifier = chatInfo.identifier;
         return identifier;
+    }
+
+    public static boolean isOnManagedThread() {
+        ChatInfo chatInfo = CHAT_THREAD_LOCAL.get();
+        if (null == chatInfo) {
+            return false;
+        }
+        return chatInfo.onManagedThread;
     }
 
     @Override
     public void destroy(Contextual<?> contextual) {
         Bean bean = (Bean) contextual;
         LOGGER.debug("destroy");
+    }
+
+    public static record ChatInfo(String identifier, boolean onManagedThread) {
+
     }
 
     private static class ChatScopeInstance<T> {

@@ -40,6 +40,11 @@ public class ChatInterceptor {
         } else {
             callable.setUserTransaction(null);
         }
+        boolean onManagedThread = ChatScopeContext.isOnManagedThread();
+        if (onManagedThread) {
+            return callable.call();
+        }
+        // only schedule when not already on a managed thread
         return this.managedExecutorService.submit(callable).get();
     }
 }

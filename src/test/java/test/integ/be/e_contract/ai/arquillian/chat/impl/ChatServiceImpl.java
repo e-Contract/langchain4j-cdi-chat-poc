@@ -31,12 +31,12 @@ public class ChatServiceImpl implements ChatService {
         String identifier = UUID.randomUUID().toString();
         FireEventContext fireEventContext = this.contextService.createContextualProxy(new FireEventContextImpl(),
                 FireEventContext.class);
-        fireEventContext.fire(new StartChatScopeEvent(identifier, this.contextService));
+        fireEventContext.fire(new StartChatScopeEvent(identifier, this.contextService, true));
         tokenStream
                 .onPartialResponse((String partialResponse) -> {
                     try {
                         this.managedExecutorService.submit(() -> {
-                            fireEventContext.fire(new StartChatScopeEvent(identifier));
+                            fireEventContext.fire(new StartChatScopeEvent(identifier, true));
                             fireEventContext.fire(new PartialResponseEvent(identifier, partialResponse));
                         }).get();
                     } catch (InterruptedException | ExecutionException ex) {
@@ -46,12 +46,12 @@ public class ChatServiceImpl implements ChatService {
                 .onIntermediateResponse((ChatResponse chatResponse) -> {
                     // next is required for the tool invocations
                     // so it has to be fired on this thread
-                    fireEventContext.fire(new StartChatScopeEvent(identifier));
+                    fireEventContext.fire(new StartChatScopeEvent(identifier, false));
                 })
                 .onCompleteResponse((ChatResponse chatResponse) -> {
                     try {
                         this.managedExecutorService.submit(() -> {
-                            fireEventContext.fire(new StartChatScopeEvent(identifier));
+                            fireEventContext.fire(new StartChatScopeEvent(identifier, true));
                             CompleteResponseEvent event = new CompleteResponseEvent(identifier, chatResponse);
                             fireEventContext.fire(event);
                             if (event.isEndChatScope()) {
@@ -66,7 +66,7 @@ public class ChatServiceImpl implements ChatService {
                     LOGGER.error("error: " + throwable.getMessage(), throwable);
                     try {
                         this.managedExecutorService.submit(() -> {
-                            fireEventContext.fire(new StartChatScopeEvent(identifier));
+                            fireEventContext.fire(new StartChatScopeEvent(identifier, true));
                             ChatErrorEvent event = new ChatErrorEvent(identifier, throwable);
                             fireEventContext.fire(event);
                             if (event.isEndChatScope()) {
