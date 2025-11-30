@@ -1,5 +1,7 @@
 package test.integ.be.e_contract.ai.arquillian.chat.impl;
 
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import jakarta.annotation.Resource;
 import jakarta.enterprise.concurrent.ManagedExecutorService;
 import jakarta.inject.Inject;
@@ -26,17 +28,45 @@ public class ChatInterceptor {
     @AroundInvoke
     public Object observeMethod(InvocationContext invocationContext)
             throws Exception {
-        LOGGER.info("{}.{}", invocationContext.getMethod().getDeclaringClass().getName(),
-                invocationContext.getMethod().getName());
+        return invoke(invocationContext);
+    }
+
+    @PostConstruct
+    public void observePostConstruct(InvocationContext invocationContext) {
+        try {
+            invoke(invocationContext);
+        } catch (Exception ex) {
+            LOGGER.error("error: " + ex.getMessage(), ex);
+        }
+    }
+
+    @PreDestroy
+    public void observePreDestroy(InvocationContext invocationContext) {
+        try {
+            invoke(invocationContext);
+        } catch (Exception ex) {
+            LOGGER.error("error: " + ex.getMessage(), ex);
+        }
+    }
+
+    private Object invoke(InvocationContext invocationContext) throws Exception {
+        if (null != invocationContext.getMethod()) {
+            LOGGER.info("{}.{}", invocationContext.getMethod().getDeclaringClass().getName(),
+                    invocationContext.getMethod().getName());
+        }
         InvocationContextCallable callable = ChatScopeContext.getInvocationContextCallable();
         if (null == callable) {
             callable = new InvocationContextCallableImpl();
         }
         String identifier = ChatScopeContext.getChatIdentifier();
         callable.setInvocationContext(invocationContext, identifier);
-        Transactional txAnnotation = invocationContext.getMethod().getAnnotation(Transactional.class);
-        if (null != txAnnotation) {
-            callable.setUserTransaction(this.userTransaction);
+        if (null != invocationContext.getMethod()) {
+            Transactional txAnnotation = invocationContext.getMethod().getAnnotation(Transactional.class);
+            if (null != txAnnotation) {
+                callable.setUserTransaction(this.userTransaction);
+            } else {
+                callable.setUserTransaction(null);
+            }
         } else {
             callable.setUserTransaction(null);
         }

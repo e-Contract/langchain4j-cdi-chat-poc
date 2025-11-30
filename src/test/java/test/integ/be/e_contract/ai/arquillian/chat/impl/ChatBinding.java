@@ -8,7 +8,7 @@ import java.lang.annotation.RetentionPolicy;
 import jakarta.interceptor.InterceptorBinding;
 
 @InterceptorBinding
-@Target({ElementType.METHOD, ElementType.TYPE})
+@Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 public @interface ChatBinding {
