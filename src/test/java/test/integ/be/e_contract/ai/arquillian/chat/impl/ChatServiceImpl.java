@@ -66,6 +66,7 @@ public class ChatServiceImpl implements ChatService {
                     LOGGER.error("error: " + throwable.getMessage(), throwable);
                     try {
                         this.managedExecutorService.submit(() -> {
+                            fireEventContext.fire(new StartChatScopeEvent(identifier));
                             ChatErrorEvent event = new ChatErrorEvent(identifier, throwable);
                             fireEventContext.fire(event);
                             if (event.isEndChatScope()) {
