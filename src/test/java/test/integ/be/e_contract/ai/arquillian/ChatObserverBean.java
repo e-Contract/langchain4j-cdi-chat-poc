@@ -39,4 +39,8 @@ public class ChatObserverBean {
         LOGGER.info("complete concat message: {}", this.transitiveBean.getResult());
         assertEquals(event.getChatResponse().aiMessage().text(), this.transitiveBean.getResult());
     }
+
+    public void observeAddTestEvent(@Observes AddTestEvent event) {
+        LOGGER.info("{} + {} = {}", event.getA(), event.getB(), event.getResult());
+    }
 }

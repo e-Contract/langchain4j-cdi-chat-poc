@@ -50,14 +50,16 @@ public class ChatInterceptor {
     }
 
     private Object invoke(InvocationContext invocationContext) throws Exception {
-        if (null != invocationContext.getMethod()) {
-            LOGGER.info("{}.{}", invocationContext.getMethod().getDeclaringClass().getName(),
-                    invocationContext.getMethod().getName());
+        boolean onManagedThread = ChatScopeContext.isOnManagedThread();
+        if (onManagedThread) {
+            return invocationContext.proceed();
         }
         InvocationContextCallable callable = ChatScopeContext.getInvocationContextCallable();
         String identifier = ChatScopeContext.getChatIdentifier();
         callable.setInvocationContext(invocationContext, identifier);
         if (null != invocationContext.getMethod()) {
+            LOGGER.info("{}.{}", invocationContext.getMethod().getDeclaringClass().getName(),
+                    invocationContext.getMethod().getName());
             Transactional txAnnotation = invocationContext.getMethod().getAnnotation(Transactional.class);
             if (null != txAnnotation) {
                 callable.setUserTransaction(this.userTransaction);
@@ -67,11 +69,6 @@ public class ChatInterceptor {
         } else {
             callable.setUserTransaction(null);
         }
-        boolean onManagedThread = ChatScopeContext.isOnManagedThread();
-        if (onManagedThread) {
-            return callable.call();
-        }
-        // only schedule when not on a managed thread
         return this.managedExecutorService.submit(callable).get();
     }
 }
