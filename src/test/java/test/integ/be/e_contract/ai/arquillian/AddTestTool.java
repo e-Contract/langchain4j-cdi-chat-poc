@@ -10,6 +10,7 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import test.integ.be.e_contract.ai.arquillian.chat.ChatId;
 
 @ChatScoped
 public class AddTestTool {
@@ -24,9 +25,14 @@ public class AddTestTool {
     @Inject
     private Event<AddTestEvent> addTestEvent;
 
+    @Inject
+    @ChatId
+    private String chatIdentifier;
+
     @Tool("Adds two numbers.")
     @Transactional
     public int addNumbers(int a, int b) {
+        LOGGER.info("chat identifier: {}", this.chatIdentifier);
         LOGGER.info("adding number {} and {}", a, b);
         this.called = true;
         int result = a + b;
