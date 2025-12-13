@@ -39,7 +39,7 @@ public class AddTestTool {
         TestEntity entity = new TestEntity("result: " + result);
         this.entityManager.persist(entity);
         // check whether we can get a CDI instance
-        CDI cdi = CDI.current();
+        CDI.current();
         this.addTestEvent.fire(new AddTestEvent(a, b, result));
         return result;
     }

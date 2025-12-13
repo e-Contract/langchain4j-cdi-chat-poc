@@ -9,10 +9,21 @@ What do we want to achieve?
 
 Running the integration tests requires a local running WildFly.
 We tested on WildFly version 38.0.1.Final.
+Start WildFly as follows:
+```
+cd wildfly-38.0.1.Final/bin
+./standalone.sh --server-config=standalone-full.xml
+```
+
+Next to that we need an LLM.
+Serve `gpt-oss` locally via:
+```
+llama-server -hf unsloth/gpt-oss-120b-GGUF:Q4_K_M --port 8081
+```
 
 Run the integration tests via:
 ```
 mvn clean test -Pintegration-tests
 ```
 
-You might need to change the `StreamingChatModel` configuration within `ChatTestBean.java`.
+You might need to change the `StreamingChatModel` configuration within `ChatTestBean.java` to use another LLM provider.

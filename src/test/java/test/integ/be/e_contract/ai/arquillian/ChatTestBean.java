@@ -3,6 +3,7 @@ package test.integ.be.e_contract.ai.arquillian;
 import test.integ.be.e_contract.ai.arquillian.chat.ChatService;
 import dev.langchain4j.model.chat.StreamingChatModel;
 import dev.langchain4j.model.ollama.OllamaStreamingChatModel;
+import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
 import dev.langchain4j.service.AiServices;
 import dev.langchain4j.service.TokenStream;
 import java.util.List;
@@ -33,12 +34,20 @@ public class ChatTestBean {
     private StopBean stopBean;
 
     public void chat() throws Exception {
-        StreamingChatModel model = OllamaStreamingChatModel.builder()
-                .baseUrl("https://ai.e-contract.be/ollama")
-                .modelName("gpt-oss:120b")
+        //StreamingChatModel model = OllamaStreamingChatModel.builder()
+        //        .baseUrl("https://ai.e-contract.be/ollama")
+        //        .modelName("gpt-oss:120b")
+        //        .logRequests(true)
+        //        .logResponses(true)
+        //        .customHeaders(Map.of("Authorization", "Bearer put-token-here"))
+        //        .temperature(0.0)
+        //        .build();
+
+        // llama-server -hf unsloth/gpt-oss-120b-GGUF:Q4_K_M --port 8081
+        StreamingChatModel model = OpenAiStreamingChatModel.builder()
+                .baseUrl("http://127.0.0.1:8081")
                 .logRequests(true)
                 .logResponses(true)
-                .customHeaders(Map.of("Authorization", "Bearer put-token-here"))
                 .temperature(0.0)
                 .build();
 
@@ -46,7 +55,7 @@ public class ChatTestBean {
                 .streamingChatModel(model)
                 .tools(this.addTestTool)
                 .build();
-        TokenStream tokenStream = aiService.chat("Add 1024 and 1024.");
+        TokenStream tokenStream = aiService.chat("Add 3141592 and 2718281.");
         String identifier = this.chatService.decorate(tokenStream);
         LOGGER.info("chat identifier: {}", identifier);
 
