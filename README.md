@@ -18,7 +18,7 @@ cd wildfly-38.0.1.Final/bin
 Next to that we need an LLM.
 Serve `gpt-oss` locally via:
 ```
-llama-server -hf unsloth/gpt-oss-120b-GGUF:Q4_K_M --port 8081
+llama-server -hf unsloth/gpt-oss-20b-GGUF:Q4_K_M --port 8081
 ```
 
 Run the integration tests via:
