@@ -1,11 +1,9 @@
 package test.integ.be.e_contract.ai.arquillian.chat.impl;
 
-import jakarta.enterprise.inject.spi.CDI;
 import jakarta.interceptor.InvocationContext;
 import jakarta.transaction.UserTransaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import test.integ.be.e_contract.ai.arquillian.chat.StartChatScopeEvent;
 
 public class InvocationContextCallableImpl implements InvocationContextCallable {
 
@@ -30,7 +28,7 @@ public class InvocationContextCallableImpl implements InvocationContextCallable 
 
     @Override
     public Object call() throws Exception {
-        CDI.current().getBeanManager().getEvent().fire(new StartChatScopeEvent(this.identifier, true));
+        ChatScopeContext.activateChatScope(this.identifier, null, true);
         if (null == this.userTransaction) {
             return this.invocationContext.proceed();
         }

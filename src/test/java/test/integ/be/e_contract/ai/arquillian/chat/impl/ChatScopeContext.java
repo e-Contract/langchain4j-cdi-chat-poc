@@ -1,12 +1,9 @@
 package test.integ.be.e_contract.ai.arquillian.chat.impl;
 
-import test.integ.be.e_contract.ai.arquillian.chat.StopChatScopeEvent;
-import test.integ.be.e_contract.ai.arquillian.chat.StartChatScopeEvent;
 import test.integ.be.e_contract.ai.arquillian.chat.ChatScoped;
 import jakarta.enterprise.context.spi.AlterableContext;
 import jakarta.enterprise.context.spi.Contextual;
 import jakarta.enterprise.context.spi.CreationalContext;
-import jakarta.enterprise.event.Observes;
 import jakarta.enterprise.inject.spi.Bean;
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
@@ -91,26 +88,23 @@ public class ChatScopeContext implements AlterableContext, Serializable {
         return null != chatInfo;
     }
 
-    public void handleStartChatEvent(@Observes StartChatScopeEvent event) {
-        String identifier = event.getIdentifier();
-        LOGGER.info("start chat scope: {} (on managed thread: {})", identifier, event.isOnManagedThread());
-        ChatInfo chatInfo = new ChatInfo(identifier, event.isOnManagedThread());
+    public static void activateChatScope(String identifier, ContextService contextService, boolean onManagedThread) {
+        LOGGER.info("activate chat scope: {} (on managed thread: {})", identifier, onManagedThread);
+        ChatInfo chatInfo = new ChatInfo(identifier, onManagedThread);
         CHAT_THREAD_LOCAL.set(chatInfo);
         Map<Class, ChatScopeInstance> classInstances = INSTANCES.get(identifier);
         if (null == classInstances) {
             classInstances = new HashMap<>();
             INSTANCES.put(identifier, classInstances);
         }
-        ContextService contextService = event.getContextService();
         if (null != contextService) {
             InvocationContextCallable callable = contextService.createContextualProxy(new InvocationContextCallableImpl(), InvocationContextCallable.class);
             INVOCATION_CONTEXTS.put(identifier, callable);
         }
     }
 
-    public void handleStopChatEvent(@Observes StopChatScopeEvent event) {
-        String identifier = event.getIdentifier();
-        LOGGER.info("stop chat scope: {}", identifier);
+    public static void destroyChatScope(String identifier) {
+        LOGGER.info("destroy chat scope: {}", identifier);
         Map<Class, ChatScopeInstance> classInstances = INSTANCES.remove(identifier);
         if (null == classInstances) {
             LOGGER.error("no class instances found for chat: {}", identifier);

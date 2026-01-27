@@ -13,8 +13,6 @@ import test.integ.be.e_contract.ai.arquillian.chat.ChatErrorEvent;
 import test.integ.be.e_contract.ai.arquillian.chat.ChatService;
 import test.integ.be.e_contract.ai.arquillian.chat.CompleteResponseEvent;
 import test.integ.be.e_contract.ai.arquillian.chat.PartialResponseEvent;
-import test.integ.be.e_contract.ai.arquillian.chat.StartChatScopeEvent;
-import test.integ.be.e_contract.ai.arquillian.chat.StopChatScopeEvent;
 
 public class ChatServiceImpl implements ChatService {
 
@@ -31,12 +29,12 @@ public class ChatServiceImpl implements ChatService {
         String identifier = UUID.randomUUID().toString();
         FireEventContext fireEventContext = this.contextService.createContextualProxy(new FireEventContextImpl(),
                 FireEventContext.class);
-        fireEventContext.fire(new StartChatScopeEvent(identifier, this.contextService, true));
+        ChatScopeContext.activateChatScope(identifier, this.contextService, true);
         tokenStream
                 .onPartialResponse((String partialResponse) -> {
                     try {
                         this.managedExecutorService.submit(() -> {
-                            fireEventContext.fire(new StartChatScopeEvent(identifier, true));
+                            ChatScopeContext.activateChatScope(identifier, null, true);
                             fireEventContext.fire(new PartialResponseEvent(identifier, partialResponse));
                         }).get();
                     } catch (InterruptedException | ExecutionException ex) {
@@ -46,16 +44,16 @@ public class ChatServiceImpl implements ChatService {
                 .onIntermediateResponse((ChatResponse chatResponse) -> {
                     // next is required for the tool invocations
                     // so it has to be fired on this thread
-                    fireEventContext.fire(new StartChatScopeEvent(identifier, false));
+                    ChatScopeContext.activateChatScope(identifier, null, false);
                 })
                 .onCompleteResponse((ChatResponse chatResponse) -> {
                     try {
                         this.managedExecutorService.submit(() -> {
-                            fireEventContext.fire(new StartChatScopeEvent(identifier, true));
+                            ChatScopeContext.activateChatScope(identifier, null, true);
                             CompleteResponseEvent event = new CompleteResponseEvent(identifier, chatResponse);
                             fireEventContext.fire(event);
                             if (event.isEndChatScope()) {
-                                fireEventContext.fire(new StopChatScopeEvent(identifier));
+                                ChatScopeContext.destroyChatScope(identifier);
                             }
                         }).get();
                     } catch (InterruptedException | ExecutionException ex) {
@@ -66,11 +64,11 @@ public class ChatServiceImpl implements ChatService {
                     LOGGER.error("error: " + throwable.getMessage(), throwable);
                     try {
                         this.managedExecutorService.submit(() -> {
-                            fireEventContext.fire(new StartChatScopeEvent(identifier, true));
+                            ChatScopeContext.activateChatScope(identifier, null, true);
                             ChatErrorEvent event = new ChatErrorEvent(identifier, throwable);
                             fireEventContext.fire(event);
                             if (event.isEndChatScope()) {
-                                fireEventContext.fire(new StopChatScopeEvent(identifier));
+                                ChatScopeContext.destroyChatScope(identifier);
                             }
                         }).get();
                     } catch (InterruptedException | ExecutionException ex) {
