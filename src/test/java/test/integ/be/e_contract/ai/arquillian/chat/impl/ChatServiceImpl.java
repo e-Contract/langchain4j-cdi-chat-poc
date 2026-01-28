@@ -2,6 +2,7 @@ package test.integ.be.e_contract.ai.arquillian.chat.impl;
 
 import dev.langchain4j.model.chat.response.ChatResponse;
 import dev.langchain4j.service.TokenStream;
+import dev.langchain4j.service.tool.BeforeToolExecution;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import jakarta.annotation.Resource;
@@ -41,7 +42,7 @@ public class ChatServiceImpl implements ChatService {
                         LOGGER.error("error: " + ex.getMessage(), ex);
                     }
                 })
-                .onIntermediateResponse((ChatResponse chatResponse) -> {
+                .beforeToolExecution((BeforeToolExecution beforeToolExecution) -> {
                     // next is required for the tool invocations
                     // so it has to be fired on this thread
                     ChatScopeContext.activateChatScope(identifier, null, false);
