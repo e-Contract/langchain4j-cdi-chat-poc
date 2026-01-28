@@ -123,15 +123,15 @@ public class ChatScopeContext implements AlterableContext, Serializable {
     public static InvocationContextCallable getInvocationContextCallable() {
         ChatInfo chatInfo = CHAT_THREAD_LOCAL.get();
         if (null == chatInfo) {
-            return new InvocationContextCallableImpl();
+            throw new RuntimeException("No InvocationContextCallable available");
         }
         String identifier = chatInfo.identifier;
         if (null == identifier) {
-            return new InvocationContextCallableImpl();
+            throw new RuntimeException("No InvocationContextCallable available");
         }
         InvocationContextCallable callable = INVOCATION_CONTEXTS.get(identifier);
         if (null == callable) {
-            return new InvocationContextCallableImpl();
+            throw new RuntimeException("No InvocationContextCallable available");
         }
         return callable;
     }
