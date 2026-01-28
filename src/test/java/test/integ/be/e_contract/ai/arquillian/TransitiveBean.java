@@ -3,9 +3,9 @@ package test.integ.be.e_contract.ai.arquillian;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import test.integ.be.e_contract.ai.arquillian.chat.ChatScoped;
+import test.integ.be.e_contract.ai.arquillian.chat.ChatStereotype;
 
-@ChatScoped
+@ChatStereotype
 public class TransitiveBean {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TransitiveBean.class);
