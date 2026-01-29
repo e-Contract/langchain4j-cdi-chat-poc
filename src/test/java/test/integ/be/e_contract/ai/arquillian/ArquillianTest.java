@@ -1,5 +1,6 @@
 package test.integ.be.e_contract.ai.arquillian;
 
+import jakarta.enterprise.context.Dependent;
 import test.integ.be.e_contract.ai.arquillian.chat.impl.ChatScopeExtension;
 import jakarta.enterprise.inject.spi.Extension;
 import jakarta.inject.Inject;
@@ -15,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import test.integ.be.e_contract.ai.arquillian.chat.ChatService;
 
 @ExtendWith(ArquillianExtension.class)
+@Dependent
 public class ArquillianTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ArquillianTest.class);

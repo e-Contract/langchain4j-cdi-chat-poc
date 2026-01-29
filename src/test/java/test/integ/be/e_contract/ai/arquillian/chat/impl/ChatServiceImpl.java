@@ -8,6 +8,7 @@ import java.util.concurrent.ExecutionException;
 import jakarta.annotation.Resource;
 import jakarta.enterprise.concurrent.ContextService;
 import jakarta.enterprise.concurrent.ManagedExecutorService;
+import jakarta.enterprise.context.Dependent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import test.integ.be.e_contract.ai.arquillian.chat.ChatErrorEvent;
@@ -15,6 +16,7 @@ import test.integ.be.e_contract.ai.arquillian.chat.ChatService;
 import test.integ.be.e_contract.ai.arquillian.chat.CompleteResponseEvent;
 import test.integ.be.e_contract.ai.arquillian.chat.PartialResponseEvent;
 
+@Dependent
 public class ChatServiceImpl implements ChatService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ChatServiceImpl.class);
